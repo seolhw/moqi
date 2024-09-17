@@ -1,26 +1,25 @@
 'use client'
 
-import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { useCookie } from 'react-use';
+import { useLocalStorageValue } from '@react-hookz/web';
 
 export default function Page() {
-  const [username, setUsername] = useState('')
-
-  const [, setValue] = useCookie("username");
+  const {
+    value: username,
+    set: setUsername,
+  } = useLocalStorageValue<string>('username', {
+    initializeWithValue: false
+  });
 
   const router = useRouter()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (username.trim()) {
-      setValue(username.trim())
-      router.replace('/')
-    }
+    router.replace('/')
   }
 
   return (
@@ -38,7 +37,10 @@ export default function Page() {
                 type="text"
                 placeholder="输入你的用户名"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => {
+                  const v = e.target.value
+                  v.trim() && setUsername(v.trim())
+                }}
                 required
               />
             </div>
