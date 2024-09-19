@@ -93,7 +93,7 @@ export default function Profile() {
                   <div className="text-right">
                     <p className="font-semibold">得分: {record.score}/10</p>
                     <Badge
-                      variant={record.score > 7 ? "success" : record.score < 5 ? "destructive" : "default"}
+                      // variant={record.score > 7 ? "success" : record.score < 5 ? "destructive" : "default"}
                     >
                       {record.result}
                     </Badge>

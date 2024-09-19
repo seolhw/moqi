@@ -18,7 +18,9 @@ export const POST = async (req: NextRequest) => {
   })
 
   if (!data) {
-    return null
+    return new Response(JSON.stringify({
+      "message": "出错啦"
+    }))
   }
 
   return new Response(JSON.stringify({
