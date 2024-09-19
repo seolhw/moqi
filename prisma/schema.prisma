@@ -13,11 +13,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 // 用户
 model User {
-  id        String    @id @default(cuid())
-  username  String    @unique
+  id       String @id @default(cuid())
+  username String @unique
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -35,6 +34,7 @@ model Question {
 // 一次游戏会话
 model Session {
   id        String   @id @default(cuid())
+  link      String   @unique
   userA     User     @relation(fields: [userAId], references: [id])
   userAId   String
   userB     String?
@@ -45,13 +45,12 @@ model Session {
 
 // 代表用户对问题的回答
 model Answer {
-  id          String   @id @default(cuid())
-  session     Session  @relation(fields: [sessionId], references: [id])
-  sessionId   String
-  question    Question @relation(fields: [questionId], references: [id])
-  questionId  String
-  userAAnswer String
-  userBAnswer String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(cuid())
+  session    Session  @relation(fields: [sessionId], references: [id])
+  sessionId  String
+  question   Question @relation(fields: [questionId], references: [id])
+  questionId String
+  key        String // 答案 A 或 B
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }

@@ -16,6 +16,8 @@ import { adventurer } from '@dicebear/collection'
 import { useRouter } from 'next/navigation'
 import { useCookieValue } from '@/lib/useCookieValue';
 import Loading from './loading'
+import { useAsync } from '@react-hookz/web'
+import { Session } from '@prisma/client'
 
 export default function Home() {
 
@@ -51,14 +53,19 @@ export default function Home() {
   }, [username])
 
 
+  const [{ status }, creatSession] = useAsync<Session>(async () => {
+    const session = await fetch("/api/session", {
+      method: "POST",
+    }).then((res) => res.json())
+    return session
+  })
+
   const startGame = async () => {
     if (username) {
       // 创建游戏
-      await fetch("/api/session", {
-        method: "POST",
-      }).then((res) => res.json())
+      const session = await creatSession.execute()
 
-      router.push("/")
+      router.push(`/quiz/${session?.link}`)
     } else {
       router.push("/login")
     }
@@ -103,7 +110,7 @@ export default function Home() {
             <p className="text-center mb-6 text-gray-600">
               {username ? `准备好挑战了吗，${username}？` : '登录并开始你的默契之旅！'}
             </p>
-            <Button onClick={startGame} className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white">
+            <Button loading={status === "loading"} onClick={startGame} className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white">
               {username ? '开始新游戏' : '登录并开始'}
             </Button>
           </CardContent>

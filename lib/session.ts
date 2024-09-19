@@ -1,23 +1,24 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from './prisma'
 
 
-export const create = async (username: string) => {
+export const getSession = async (sessionLink: string) => {
 
-  const user = await prisma.user.findUnique({
-    where: {
-      username
-    }
-  })
+  const sessionInclude: Prisma.SessionInclude = {
+    answers: true,
+    userA: true
+  };
 
-  if (!user) {
-    return null
-  }
 
-  return prisma.session.create(
+  const data = prisma.session.findUnique(
     {
-      data: {
-        userAId: user.id,
-      }
+      where: {
+        link: sessionLink,
+      },
+      include: sessionInclude
     }
   )
+
+  return data
+
 }

@@ -1,6 +1,6 @@
 'use client'
 import { useToast } from "@/hooks/use-toast"
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -16,6 +16,10 @@ export default function Page() {
   }>()
 
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const path = searchParams.get("path")
+
 
   const [{ status }, createUser] = useAsync(async (username: string) => {
     const data = await fetch("/api/login", {
@@ -36,7 +40,11 @@ export default function Page() {
       description: "",
       duration: 1000
     })
-    router.replace('/')
+    if (path) {
+      router.replace(path?.toString())
+    } else {
+      router.replace('/')
+    }
   }
 
   return (

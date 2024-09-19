@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client"
+import { Prisma, PrismaClient, Question } from "@prisma/client"
 // import { log } from "./logger"
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
 
@@ -52,3 +52,21 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 // export {
 //   prisma
 // }
+
+
+// 一些类型
+
+export type SessionWithAnswers = Prisma.SessionGetPayload<{
+  include: {
+    answers: true;
+  };
+}>;
+
+
+type Options = {
+  [key: string]: string;
+};
+
+export type QuestionWithOptions =  Omit<Question, 'options'> & {
+  options: Options[]
+}
