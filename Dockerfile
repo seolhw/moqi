@@ -16,7 +16,8 @@ RUN npm install
 COPY . .
 
 # 构建 Next.js 应用
-RUN npm run build
+RUN npm run ci-build
+
 
 # 暴露容器的 3000 端口
 EXPOSE 3000
