@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "ci-build": "prisma generate && prisma migrate deploy && next build",
+    "migrate:dev": "prisma migrate dev"
   },
   "dependencies": {
     "@dicebear/collection": "^9.2.2",
