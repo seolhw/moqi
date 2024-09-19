@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Toaster } from "@/components/ui/toaster"
+import { SWRProvider } from './swr-provider'
 import "./globals.css";
 
 const geistSans = localFont({
@@ -28,7 +30,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <SWRProvider>
+          <div className="min-h-screen flex flex-col bg-gradient-to-b from-pink-300 to-purple-400 p-4">
+            {children}
+            <footer className="mt-12 text-center text-white text-sm">
+              © 2024 情侣默契大挑战. 保留所有权利.
+            </footer>
+          </div>
+        </SWRProvider>
+        <Toaster />
       </body>
     </html>
   );

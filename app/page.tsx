@@ -1,8 +1,6 @@
-'use client'
-
-import { useState, useEffect } from 'react'
+"use client"
+import { useMemo } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -13,39 +11,75 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { User, LogOut } from 'lucide-react'
+import { createAvatar } from '@dicebear/core'
+import { adventurer } from '@dicebear/collection'
+import { useRouter } from 'next/navigation'
+import { useCookieValue } from '@/lib/useCookieValue';
+import Loading from './loading'
 
 export default function Home() {
-  const [user, setUser] = useState<{ name: string; avatar: string } | null>(null)
+
+  const [username, , removeUsername] = useCookieValue("username", {
+    initializeWithValue: false
+  })
+
   const router = useRouter()
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user')
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
-    }
-  }, [])
 
   const handleLogout = () => {
-    localStorage.removeItem('user')
-    setUser(null)
+    removeUsername()
+  }
+
+
+  const avatarUrl = useMemo(() => {
+    if (username) {
+      const avatar = createAvatar(adventurer, {
+        seed: username,
+        // ... other options
+      });
+
+      return avatar.toDataUri();
+    }
+  }, [username])
+
+
+  const isLoading = useMemo(() => {
+    if (username === undefined) {
+      return true
+    }
+    return false
+  }, [username])
+
+
+  const startGame = async () => {
+    if (username) {
+      // 创建游戏
+      await fetch("/api/session", {
+        method: "POST",
+      }).then((res) => res.json())
+
+      router.push("/")
+    } else {
+      router.push("/login")
+    }
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-pink-300 to-purple-400 p-4">
+    <>
       <header className="w-full max-w-4xl mx-auto flex justify-between items-center mb-12">
         <h1 className="text-3xl font-bold text-white">情侣默契大挑战</h1>
-        {user ? (
+        {username ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="p-0">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback>{user.name[0]}</AvatarFallback>
+                <Avatar className="h-14 w-14">
+                  <AvatarImage src={avatarUrl} alt={username} />
+                  <AvatarFallback>{username}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onSelect={() => router.push('/profile')}>
+              <DropdownMenuItem onSelect={() => { }}>
                 <User className="mr-2 h-4 w-4" />
                 <span>个人中心</span>
               </DropdownMenuItem>
@@ -67,17 +101,15 @@ export default function Home() {
           <CardContent className="pt-6">
             <h2 className="text-2xl font-bold text-center mb-6">测试你们的默契程度！</h2>
             <p className="text-center mb-6 text-gray-600">
-              {user ? `准备好挑战了吗，${user.name}？` : '登录并开始你的默契之旅！'}
+              {username ? `准备好挑战了吗，${username}？` : '登录并开始你的默契之旅！'}
             </p>
-            <Link href={user ? "/quiz/a" : "/login"}>
-              <Button className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white">
-                {user ? '开始新游戏' : '登录并开始'}
-              </Button>
-            </Link>
+            <Button onClick={startGame} className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white">
+              {username ? '开始新游戏' : '登录并开始'}
+            </Button>
           </CardContent>
         </Card>
 
-        {user && (
+        {username && (
           <div className="mt-8 w-full max-w-md">
             <Link href="/profile">
               <Button variant="outline" className="w-full bg-white/50 backdrop-blur-sm hover:bg-white/60 text-purple-700">
@@ -88,9 +120,7 @@ export default function Home() {
         )}
       </main>
 
-      <footer className="mt-12 text-center text-white text-sm">
-        © 2023 情侣默契大挑战. 保留所有权利.
-      </footer>
-    </div>
+      {isLoading && <Loading />}
+    </>
   )
 }
