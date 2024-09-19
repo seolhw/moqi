@@ -11,7 +11,7 @@ export const POST = async (req: NextRequest) => {
     }
   })
   cookies().set("username", user.username)
-  return {
+  return new Response(JSON.stringify({
     message: "用户创建成功"
-  }
+  }))
 }

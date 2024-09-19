@@ -4,9 +4,9 @@ export const POST = async () => {
 
   cookies().delete("username")
 
-  return {
+  return new Response(JSON.stringify({
     "message": "退出成功"
-  }
+  }))
 }
 
 

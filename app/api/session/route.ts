@@ -18,13 +18,15 @@ export const POST = async () => {
     return new Response("用户不存在")
   }
 
-  return prisma.session.create(
+  const session = prisma.session.create(
     {
       data: {
         userAId: user.id,
       }
     }
   )
+
+  return new Response(JSON.stringify(session))
 }
 
 
