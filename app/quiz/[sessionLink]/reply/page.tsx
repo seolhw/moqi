@@ -1,13 +1,17 @@
 import Link from 'next/link'
 import { getSession } from '@/lib/session'
+import ReplyCard from '../components/replyCard'
+import { cookies } from 'next/headers'
+import { getUserInfo } from '@/app/action/user'
 
 export default async function QuizReply({ params: { sessionLink } }: {
   params: {
     sessionLink: string
   }
 }) {
-
   const session = await getSession(sessionLink)
+  const userinfo = await getUserInfo()
+
 
   return (
     <>
@@ -18,8 +22,7 @@ export default async function QuizReply({ params: { sessionLink } }: {
       </header>
 
       <main className="flex-grow flex items-center justify-center">
-        <h1>应答</h1>
-        {/* <QuestionCard session={session!} /> */}
+        <ReplyCard userinfo={userinfo!} session={session!} />
       </main>
     </>
   )

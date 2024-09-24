@@ -15,3 +15,17 @@ export const POST = async (req: NextRequest) => {
     message: "用户创建成功"
   }))
 }
+
+
+export const GET = async () => {
+  const username = cookies().get("username")?.value
+
+
+  const user = await prisma.user.findUnique({
+    where: {
+      username
+    }
+  })
+
+  return new Response(JSON.stringify(user))
+}

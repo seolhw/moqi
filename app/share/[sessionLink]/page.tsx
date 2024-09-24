@@ -1,16 +1,20 @@
 import Link from 'next/link'
 import { getSession } from '@/lib/session'
-import QuestionCard from './components/questionCard'
-import { getUserInfo } from '@/app/action/user'
+import InviteCard from './components/inviteCard'
+import { cookies } from 'next/headers'
 
-export default async function Quiz({ params: { sessionLink } }: {
+export default async function Share({ params: { sessionLink } }: {
   params: {
     sessionLink: string
   }
 }) {
 
   const session = await getSession(sessionLink)
-  const userinfo = await getUserInfo()
+
+  const username = cookies().get("username")?.value
+
+  const isShowInvite = session?.userA.username !== username
+
 
   return (
     <>
@@ -21,7 +25,7 @@ export default async function Quiz({ params: { sessionLink } }: {
       </header>
 
       <main className="flex-grow flex items-center justify-center">
-        <QuestionCard userinfo={userinfo!} session={session!} />
+        {isShowInvite ? <InviteCard session={session!} /> : <></> }
       </main>
     </>
   )

@@ -4,13 +4,14 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAsync, useList, useMountEffect } from '@react-hookz/web'
 import { useMemo } from 'react'
-import { Answer, Prisma, Question, Session } from '@prisma/client'
+import { Answer, Prisma, Question, Session, User } from '@prisma/client'
 import { QuestionWithOptions, SessionWithAnswers } from '@/lib/prisma'
 import Loading from '@/app/loading'
 import { Input } from '@/components/ui/input'
 import urlJoin from 'url-join';
 import { useRouter } from 'next/navigation'
 import { toast } from '@/hooks/use-toast'
+import { Shuffle } from 'lucide-react'
 
 const optionColors = [
   "from-pink-500 to-rose-500",
@@ -19,11 +20,12 @@ const optionColors = [
   "from-yellow-500 to-amber-500",
 ]
 
-export default function QuestionCard({ session }: {
+export default function QuestionCard({ session, userinfo }: {
   session: SessionWithAnswers
+  userinfo: User
 }) {
   const router = useRouter()
-  const ids = session?.answers?.map(item => item.id) || []
+  const ids = session?.answers?.filter(item => item.userId === userinfo.id)?.map(item => item.id) || []
 
   const [list, { push }] = useList<string>(ids)
 
@@ -62,7 +64,7 @@ export default function QuestionCard({ session }: {
   useMountEffect(nextQues)
 
 
-  const shareUrl = urlJoin(process.env.NEXT_PUBLIC_HOST || "", "quiz", session.link);
+  const shareUrl = urlJoin(process.env.NEXT_PUBLIC_HOST || "", "share", session.link);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(shareUrl)
@@ -86,8 +88,12 @@ export default function QuestionCard({ session }: {
     router.push(`/quiz/${session?.link}`)
   }
 
+  const handleShuffle = () => {
+    nextQues()
+  }
 
-  if (status === "loading" || !currentQues) {
+
+  if (status === "loading") {
     return <Loading />
   }
 
@@ -119,10 +125,25 @@ export default function QuestionCard({ session }: {
     </Card>
   }
 
+  if (!currentQues) {
+    return <Loading />
+  }
+
   return (
     <Card className="w-full max-w-md bg-white/90 backdrop-blur-sm shadow-xl">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-center">问题 {list.length + 1}/10</CardTitle>
+        <div className="flex items-center justify-between mb-4">
+          <CardTitle className="text-2xl font-bold">问题 {list.length + 1}/10</CardTitle>
+          <Button
+            onClick={handleShuffle}
+            className="bg-gray-200 text-gray-800 hover:bg-gray-300 absolute top-4 right-4 flex items-center space-x-1"
+            // disabled={}
+            size="sm"
+          >
+            <Shuffle className="h-4 w-4" />
+            <span className="text-sm">换一题</span>
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <p className="text-xl mb-6 text-center">{currentQues.content}</p>

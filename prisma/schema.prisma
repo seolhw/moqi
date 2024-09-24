@@ -18,9 +18,12 @@ model User {
   id       String @id @default(cuid())
   username String @unique
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  sessions  Session[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  SessionToUserA Session[] @relation("SessionToUserA")
+  SessionToUserB Session[] @relation("SessionToUserB")
+  Answer         Answer[]
 }
 
 // 问题
@@ -35,9 +38,10 @@ model Question {
 model Session {
   id        String   @id @default(cuid())
   link      String   @unique
-  userA     User     @relation(fields: [userAId], references: [id])
+  userA     User     @relation(fields: [userAId], references: [id], name: "SessionToUserA")
   userAId   String
-  userB     String?
+  userB     User?    @relation(fields: [userBId], references: [id], name: "SessionToUserB")
+  userBId   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   answers   Answer[]
@@ -50,6 +54,8 @@ model Answer {
   sessionId  String
   question   Question @relation(fields: [questionId], references: [id])
   questionId String
+  user       User     @relation(fields: [userId], references: [id]) // 参与回答的用户
+  userId     String
   key        String // 答案 A 或 B
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt

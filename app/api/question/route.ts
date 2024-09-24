@@ -16,3 +16,4 @@ export const GET = async (request: NextRequest) => {
 
   return new Response(JSON.stringify(randomQuestion?.[0]))
 }
+

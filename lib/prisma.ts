@@ -59,6 +59,7 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 export type SessionWithAnswers = Prisma.SessionGetPayload<{
   include: {
     answers: true;
+    userA: true;
   };
 }>;
 
