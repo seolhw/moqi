@@ -16,5 +16,5 @@ export async function middleware(req: NextRequest) {
 // export default middleware
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: ['/quiz/:path*', '/profile'],
+  matcher: ['/quiz/:path*', '/profile', '/result/:path*'],
 }

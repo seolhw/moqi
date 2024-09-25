@@ -1,11 +1,22 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
+import { compareAsc, format } from "date-fns";
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { useCookieValue } from '@/lib/useCookieValue'
+import { createAvatar } from '@dicebear/core'
+import { adventurer } from '@dicebear/collection'
+import { useAsync, useMountEffect } from '@react-hookz/web'
+import * as R from 'ramda'
+import { SessionResult } from '@/lib/prisma'
+import { Answer, Prisma, Session } from '@prisma/client'
+import Loading from '../loading'
+import { getEvaluation } from '@/lib/evaluation'
+import { useRouter } from 'next/navigation';
 
 interface User {
   name: string
@@ -23,32 +34,96 @@ interface ChallengeRecord {
 }
 
 export default function Profile() {
-  const [user, setUser] = useState<User | null>(null)
-  const [challengeRecords, setChallengeRecords] = useState<ChallengeRecord[]>([])
+  const router = useRouter()
 
-  useEffect(() => {
-    // 这里应该从API获取实际的用户数据和挑战记录
-    // 现在我们只是模拟一些数据
-    const mockUser: User = {
-      name: "小明",
-      avatar: "/placeholder.svg?height=100&width=100",
-      totalGames: 15,
-      averageScore: 7.5
+  const [username, , removeUsername] = useCookieValue("username", {
+    initializeWithValue: false
+  })
+
+  const avatarUrl = useMemo(() => {
+    if (username) {
+      const avatar = createAvatar(adventurer, {
+        seed: username,
+        // ... other options
+      });
+
+      return avatar.toDataUri();
     }
-    setUser(mockUser)
+  }, [username])
 
-    const mockRecords: ChallengeRecord[] = [
-      { id: "1", date: "2023-06-01", partner: "小红", score: 8, result: "默契达人" },
-      { id: "2", date: "2023-06-03", partner: "小芳", score: 6, result: "甜蜜搭档" },
-      { id: "3", date: "2023-06-05", partner: "小李", score: 9, result: "天生一对" },
-      { id: "4", date: "2023-06-07", partner: "小张", score: 7, result: "心有灵犀" },
-      { id: "5", date: "2023-06-09", partner: "小王", score: 5, result: "有趣组合" },
-    ]
-    setChallengeRecords(mockRecords)
-  }, [])
+  const [{ status, result }, { execute: getSessionCount }] = useAsync<{ count: number }>(async () => {
+    const session = await fetch("/api/session/count", {
+      method: "GET",
+    }).then((res) => res.json())
+    return session
+  })
 
-  if (!user) {
-    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-pink-300 to-purple-400">加载中...</div>
+  const sessionWithAnswers = Prisma.validator<Prisma.SessionDefaultArgs>()({
+    include: {
+      userA: true,
+      userB: true,
+      answers: true
+    }
+  })
+
+  type SessionWithAnswersGetPayload = Prisma.SessionGetPayload<typeof sessionWithAnswers>;
+
+  const [{ status: reslutStatus, result: sessionList = [] }, { execute: getSesionList }] = useAsync<(SessionWithAnswersGetPayload & { score: number })[]>(async () => {
+    const data: SessionWithAnswersGetPayload[] = await fetch(`/api/session`, {
+      method: "GET"
+    }).then((res) => res.json())
+
+    const getScore = R.pipe(
+      R.prop("answers"),
+      R.groupBy((item: Answer) => item.questionId),
+      Object.values,
+      R.reduce((acc, answers) => {
+        const allSameKey = answers.every((a: Answer) => a.key === answers[0].key);
+        return acc + (allSameKey ? 1 : 0);
+      }, 0)
+    )
+
+
+    const reslut = R.map((item => {
+      return {
+        ...item,
+        score: getScore(item)
+      }
+    }), data)
+    return reslut
+  })
+
+  useMountEffect(() => {
+    getSessionCount()
+    getSesionList()
+  })
+
+  const getEvaluationNode = (score: number) => {
+    const data = getEvaluation(score)
+    return data.title
+  }
+
+  const [{ status: createSessionStatus }, creatSession] = useAsync<Session>(async () => {
+    const session = await fetch("/api/session", {
+      method: "POST",
+    }).then((res) => res.json())
+    return session
+  })
+
+  const startGame = async () => {
+    if (username) {
+      // 创建游戏
+      const session = await creatSession.execute()
+
+      router.push(`/quiz/${session?.link}`)
+    } else {
+      router.push("/login")
+    }
+  }
+
+
+  if (!username || reslutStatus === "loading" || status === "loading") {
+    return <Loading />
   }
 
   return (
@@ -59,19 +134,19 @@ export default function Profile() {
         </Link>
       </header>
 
-      <main className="flex-grow flex flex-col items-center max-w-4xl mx-auto">
+      <main className="flex-grow flex flex-col items-center max-w-4xl mx-auto min-w-[90%]">
         <Card className="w-full bg-white/90 backdrop-blur-sm shadow-xl mb-8">
           <CardHeader>
             <div className="flex items-center space-x-4">
               <Avatar className="w-20 h-20">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback>{user.name[0]}</AvatarFallback>
+                <AvatarImage src={avatarUrl} alt={username!} />
+                <AvatarFallback>{username}</AvatarFallback>
               </Avatar>
               <div>
-                <CardTitle className="text-2xl font-bold">{user.name}</CardTitle>
+                <CardTitle className="text-2xl font-bold">{username}</CardTitle>
                 <div className="mt-2 space-y-1">
-                  <Badge variant="secondary">总游戏次数: {user.totalGames}</Badge>
-                  <Badge variant="secondary">平均得分: {user.averageScore.toFixed(1)}</Badge>
+                  <Badge variant="secondary">总游戏次数: {R.isNotNil(result?.count) ? result?.count : "正在加载中"}</Badge>
+                  {/* <Badge variant="secondary">平均得分: {user.averageScore.toFixed(1)}</Badge> */}
                 </div>
               </div>
             </div>
@@ -83,19 +158,19 @@ export default function Profile() {
             <CardTitle className="text-2xl font-bold">挑战记录</CardTitle>
           </CardHeader>
           <CardContent>
-            {challengeRecords.map((record) => (
+            {sessionList.map((record) => (
               <div key={record.id} className="mb-4 p-4 bg-white rounded-lg shadow">
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="font-semibold">{record.date}</p>
-                    <p className="text-sm text-gray-600">与 {record.partner} 的挑战</p>
+                    <p className="font-semibold">{format(record.updatedAt, "yyyy-MM-dd")}</p>
+                    <p className="text-sm text-gray-600">与 {record.userB?.username} 的挑战</p>
                   </div>
                   <div className="text-right">
                     <p className="font-semibold">得分: {record.score}/10</p>
                     <Badge
-                      // variant={record.score > 7 ? "success" : record.score < 5 ? "destructive" : "default"}
+                      variant="outline"
                     >
-                      {record.result}
+                      {getEvaluationNode(record.score)}
                     </Badge>
                   </div>
                 </div>
@@ -104,12 +179,10 @@ export default function Profile() {
           </CardContent>
         </Card>
 
-        <div className="mt-8">
-          <Link href="/quiz/a">
-            <Button className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white">
-              开始新挑战
-            </Button>
-          </Link>
+        <div className="mt-8 w-full">
+          <Button loading={createSessionStatus === "loading"} onClick={startGame} className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white">
+            开始新挑战
+          </Button>
         </div>
       </main>
     </>

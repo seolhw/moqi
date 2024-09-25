@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient, Question } from "@prisma/client"
+import { Answer, Prisma, PrismaClient, Question } from "@prisma/client"
 // import { log } from "./logger"
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
 
@@ -68,6 +68,12 @@ type Options = {
   [key: string]: string;
 };
 
-export type QuestionWithOptions =  Omit<Question, 'options'> & {
+export type QuestionWithOptions = Omit<Question, 'options'> & {
   options: Options[]
+}
+
+
+export interface SessionResult {
+  id: string,
+  values: Answer[]
 }

@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { useAsync } from '@react-hookz/web';
 import { useForm } from 'react-hook-form'
 import Link from 'next/link'
+import { Session } from "@prisma/client"
 export default function Page() {
   const { toast } = useToast()
 
@@ -19,6 +20,7 @@ export default function Page() {
   const searchParams = useSearchParams()
 
   const path = searchParams.get("path")
+  const sessionId = searchParams.get("sessionId")
 
 
   const [{ status }, createUser] = useAsync(async (username: string) => {
@@ -30,6 +32,13 @@ export default function Page() {
   })
 
 
+  const [{ status: joinGameStatus }, { execute: joinGame }] = useAsync<Session, string[]>(async () => {
+    const data = await fetch(`/api/session/${sessionId}`, {
+      method: "PUT",
+    }).then((res) => res.json())
+    return data
+  })
+
 
   const onSubmit = async ({ username }: {
     username: string
@@ -40,6 +49,11 @@ export default function Page() {
       description: "",
       duration: 1000
     })
+
+    if (sessionId) {
+      await joinGame()
+    }
+
     if (path) {
       router.replace(path?.toString())
     } else {
@@ -79,7 +93,7 @@ export default function Page() {
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )} */}
-              <Button loading={status === "loading"} type="submit" className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white">
+              <Button loading={status === "loading" || joinGameStatus === "loading"} type="submit" className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white">
                 登录
               </Button>
             </form>

@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { cookies } from 'next/headers'
 import { nanoid } from '@/lib/nanoid'
 import { Prisma } from '@prisma/client'
+import { NextRequest } from 'next/server'
 
 export const POST = async () => {
   const username = cookies().get("username")?.value
@@ -41,6 +42,31 @@ export const POST = async () => {
   )
 
   return new Response(JSON.stringify(session))
+}
+
+export const GET = async (req: NextRequest) => {
+  const username = req.cookies.get("username")?.value
+
+  const data = await prisma.session.findMany({
+    where: {
+      OR: [
+        {
+          userA: { username }
+        },
+        {
+          userB: { username }
+        }
+      ]
+
+    },
+    include: {
+      userA: true,
+      userB: true,
+      answers: true
+    }
+  })
+
+  return new Response(JSON.stringify(data))
 }
 
 

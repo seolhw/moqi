@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useAsync, useList, useMountEffect } from '@react-hookz/web'
 import { useEffect, useMemo } from 'react'
 import { Answer, Prisma, Question, Session, User } from '@prisma/client'
-import { QuestionWithOptions, SessionWithAnswers } from '@/lib/prisma'
+import { QuestionWithOptions, SessionResult, SessionWithAnswers } from '@/lib/prisma'
 import Loading from '@/app/loading'
 import { Input } from '@/components/ui/input'
 import urlJoin from 'url-join';
@@ -25,10 +25,6 @@ const optionColors = [
   "from-yellow-500 to-amber-500",
 ]
 
-interface SessionResult {
-  id: string,
-  values: Answer[]
-}
 
 
 export default function ReplyCard({ session, userinfo }: {

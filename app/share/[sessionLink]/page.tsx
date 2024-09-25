@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { getSession } from '@/lib/session'
 import InviteCard from './components/inviteCard'
 import { cookies } from 'next/headers'
+import { redirect } from "next/navigation"
 
 export default async function Share({ params: { sessionLink } }: {
   params: {
@@ -13,7 +14,15 @@ export default async function Share({ params: { sessionLink } }: {
 
   const username = cookies().get("username")?.value
 
+  if(!username){
+    redirect(`/login?path=/quiz/${sessionLink}/reply&sessionId=${session?.id}`)
+  }
+
   const isShowInvite = session?.userA.username !== username
+
+  if (!isShowInvite) {
+    redirect(`/quiz/${sessionLink}`)
+  }
 
 
   return (
@@ -25,7 +34,7 @@ export default async function Share({ params: { sessionLink } }: {
       </header>
 
       <main className="flex-grow flex items-center justify-center">
-        {isShowInvite ? <InviteCard session={session!} /> : <></> }
+        {isShowInvite ? <InviteCard session={session!} /> : <></>}
       </main>
     </>
   )

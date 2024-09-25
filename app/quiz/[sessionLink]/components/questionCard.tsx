@@ -18,6 +18,7 @@ const optionColors = [
   "from-blue-500 to-cyan-500",
   "from-green-500 to-emerald-500",
   "from-yellow-500 to-amber-500",
+  "from-grap-500 to-amber-500",
 ]
 
 export default function QuestionCard({ session, userinfo }: {
@@ -98,31 +99,47 @@ export default function QuestionCard({ session, userinfo }: {
   }
 
   if (list.length >= 10) {
-    return <Card className="w-full max-w-md bg-white/90 backdrop-blur-sm shadow-xl">
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold text-center">答题完成</CardTitle>
-        <CardDescription className='text-center'>快去分享给你的另一半，测测默契度吧</CardDescription>
-      </CardHeader>
-      <CardContent className="text-center">
-        <Input
-          type="text"
-          value={shareUrl}
-          readOnly
-          className="bg-white/50"
-        />
-        <div className='flex gap-4 mt-6'>
-          <Button onClick={copyToClipboard} className={`w-full text-white bg-gradient-to-r ${optionColors[0]} hover:opacity-90 transition-opacity`}>
-            直接分享
-          </Button>
-          <Button onClick={copyToClipboard} className={`w-full text-white bg-gradient-to-r ${optionColors[1]} hover:opacity-90 transition-opacity`}>
-            复制链接
-          </Button>
-          <Button loading={createStatus === "loading"} className={`w-full text-white bg-gradient-to-r ${optionColors[2]} hover:opacity-90 transition-opacity`}>
-            再玩一次
-          </Button>
+    return (
+      <div>
+        <Card className="w-full max-w-md bg-white/90 backdrop-blur-sm shadow-xl">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-center">答题完成</CardTitle>
+            <CardDescription className='text-center'>快去分享给你的另一半，测测默契度吧</CardDescription>
+          </CardHeader>
+          <CardContent className="text-center">
+            <Input
+              type="text"
+              value={shareUrl}
+              readOnly
+              className="bg-white/50"
+            />
+            <div className='flex gap-4 mt-6'>
+              <Button onClick={copyToClipboard} className={`w-full text-white bg-gradient-to-r ${optionColors[0]} hover:opacity-90 transition-opacity`}>
+                直接分享
+              </Button>
+              <Button onClick={copyToClipboard} className={`w-full text-white bg-gradient-to-r ${optionColors[1]} hover:opacity-90 transition-opacity`}>
+                复制链接
+              </Button>
+              <Button onClick={startGame} loading={createStatus === "loading"} className={`w-full text-white bg-gradient-to-r ${optionColors[2]} hover:opacity-90 transition-opacity`}>
+                再玩一次
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+        <div className='flex gap-4 mt-10 justify-center'>
+          <Link href="/profile">
+            <Button className={`w-full text-white bg-gray-500 hover:opacity-90 transition-opacity`}>
+              查看游戏记录
+            </Button>
+          </Link>
+          <Link href="/profile">
+            <Button className={`w-full text-white bg-gray-500 hover:opacity-90 transition-opacity`}>
+              回到首页
+            </Button>
+          </Link>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    )
   }
 
   if (!currentQues) {
@@ -140,7 +157,7 @@ export default function QuestionCard({ session, userinfo }: {
             // disabled={}
             size="sm"
           >
-            <Shuffle className="h-4 w-4" />
+            <Shuffle className="h-4 w-4 mr-1" />
             <span className="text-sm">换一题</span>
           </Button>
         </div>
