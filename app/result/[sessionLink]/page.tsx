@@ -13,6 +13,7 @@ import { getEvaluation } from '@/lib/evaluation'
 import { SessionResult } from '@/lib/prisma'
 import { useAsync, useMountEffect } from '@react-hookz/web'
 import { Session } from '@prisma/client'
+import Back from './components/back'
 
 export default async function ResultDetails({ params }: { params: { sessionLink: string } }) {
   const questions = await getSessionResult(params.sessionLink)
@@ -70,9 +71,7 @@ export default async function ResultDetails({ params }: { params: { sessionLink:
     <div className="min-h-screen bg-gradient-to-b from-pink-300 to-purple-400 p-4">
       <div className="max-w-2xl mx-auto">
         <header className="flex justify-between items-center mb-8">
-          <Button variant="ghost" className="text-white">
-            <ArrowLeft className="mr-2 h-4 w-4" /> 返回
-          </Button>
+          <Back />
           <h1 className="text-2xl font-bold text-white">结果详情</h1>
         </header>
 
