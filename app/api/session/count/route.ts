@@ -7,9 +7,18 @@ export const GET = async (req: NextRequest) => {
 
   const data = await prisma.session.count({
     where: {
-      userA: {
-        username
-      }
+      OR: [
+        {
+          userA: {
+            username
+          },
+        },
+        {
+          userB: {
+            username
+          }
+        }
+      ]
     }
   })
 
