@@ -159,22 +159,24 @@ export default function Profile() {
           </CardHeader>
           <CardContent>
             {sessionList.map((record) => (
-              <div key={record.id} className="mb-4 p-4 bg-white rounded-lg shadow">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="font-semibold">{format(record.updatedAt, "yyyy-MM-dd")}</p>
-                    <p className="text-sm text-gray-600">与 {record.userB?.username} 的挑战</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold">得分: {record.score}/10</p>
-                    <Badge
-                      variant="outline"
-                    >
-                      {getEvaluationNode(record.score)}
-                    </Badge>
+              <Link key={record.id} href={`/result/${record.link}`}>
+                <div className="mb-4 p-4 bg-white rounded-lg shadow">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="font-semibold">{format(record.updatedAt, "yyyy-MM-dd")}</p>
+                      <p className="text-sm text-gray-600">与 {record.userB?.username} 的挑战</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold">得分: {record.score}/10</p>
+                      <Badge
+                        variant="outline"
+                      >
+                        {getEvaluationNode(record.score)}
+                      </Badge>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </CardContent>
         </Card>

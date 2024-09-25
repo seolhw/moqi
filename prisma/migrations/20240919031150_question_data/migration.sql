@@ -40,7 +40,7 @@ INSERT INTO "public"."Question" VALUES ('cm17pna79000xhhz6jko3102e', '你是大�
 INSERT INTO "public"."Question" VALUES ('cm17pna79000yhhz6zro428hq', '你起床时会叠被子吗？', '{"{\"A\": \"是\"}","{\"B\": \"否\"}"}') ON CONFLICT (id) DO NOTHING;
 INSERT INTO "public"."Question" VALUES ('cm17pna79000zhhz638j4u5un', '你挤牙膏是从中间开始挤吗？', '{"{\"A\": \"是\"}","{\"B\": \"否\"}"}') ON CONFLICT (id) DO NOTHING;
 INSERT INTO "public"."Question" VALUES ('cm17pna790010hhz62cs8tork', '你是否每周都会给家里打电话？', '{"{\"A\": \"是\"}","{\"B\": \"否\"}"}') ON CONFLICT (id) DO NOTHING;
-INSERT INTO "public"."Question" VALUES ('cm17pna790011hhz670bx2kpx', '你认为男朋友给女朋友买苏菲丢人吗？', '{"{\"A\": \"是\"}","{\"B\": \"否\"}"}') ON CONFLICT (id) DO NOTHING;
+INSERT INTO "public"."Question" VALUES ('cm17pna790011hhz670bx2kpx', '你认为男朋友给女朋友买苏菲丢人吗？', '{"{\"A\": \"丢人\"}","{\"B\": \"不丢人\"}"}') ON CONFLICT (id) DO NOTHING;
 INSERT INTO "public"."Question" VALUES ('cm17pna790012hhz64xo5f2s1', '你认为重色轻友可耻吗？', '{"{\"A\": \"是\"}","{\"B\": \"否\"}"}') ON CONFLICT (id) DO NOTHING;
 INSERT INTO "public"."Question" VALUES ('cm17pna790013hhz6waocy91p', '你是否是个浪漫的人？', '{"{\"A\": \"是\"}","{\"B\": \"否\"}"}') ON CONFLICT (id) DO NOTHING;
 INSERT INTO "public"."Question" VALUES ('cm17pna790014hhz6wy1vnfzb', '你是否建议恋人在与你交谈中将你与前任做比较？', '{"{\"A\": \"是\"}","{\"B\": \"否\"}"}') ON CONFLICT (id) DO NOTHING;
